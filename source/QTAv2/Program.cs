@@ -12,6 +12,7 @@ using System.Data;
 using CsvHelper;
 using System.Globalization;
 using System.Diagnostics;
+using CommandLine.Text;
 
 namespace QTAv2
 {
@@ -20,19 +21,48 @@ namespace QTAv2
         //private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();        
         private static Logger logger;
         private static Stopwatch _watch;
+        private static string ExePath;
+        private static string RootPath;
+        private static string QueryPath;
+        private static string ConfigPath;
+        private static string LogPath;
+        private static string CsvPath;
+        private static bool ParserError=false;
 
         static void Main(string[] args)
         {
-            logger = new Logger("log");
-            var parser = new Parser(config => {config.CaseSensitive = false;} );
+            ExePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            RootPath = Path.Combine(ExePath,"..");
+            QueryPath = Path.Combine(RootPath, "Query");
+            LogPath = Path.Combine(RootPath, "Logs");
+            ConfigPath = Path.Combine(RootPath, "Config");
+            CsvPath = Path.Combine(RootPath, "Csv");
 
-            parser.ParseArguments<ExportToCSV, ExportToTable>(args)
+
+            logger = new Logger("log");
+            //var parser = CommandLine.Parser.Default;
+            //parser.Settings.CaseSensitive = false;
+            var parser = new Parser(config =>
+                {
+                    config.IgnoreUnknownArguments = false;
+                    config.CaseSensitive = false;
+                    config.AutoHelp = true;
+                    config.AutoVersion = true;
+                    config.HelpWriter = Console.Error;
+                });
+
+
+            var result = parser.ParseArguments<ExportToCSV, ExportToTable>(args)
                 .WithParsed<ExportToCSV>(s => RunExportToCSV(s))
                 .WithParsed<ExportToTable>(s => RunExportToTable(s))
                 .WithNotParsed(errors => HandleParseError(errors));
 
-            _watch.Stop();
-            logger.Debug($"Application Finished. Elapsed time: {_watch.ElapsedMilliseconds}ms");
+            if (!ParserError)
+            {
+                _watch.Stop();
+                logger.Debug($"Application Finished. Elapsed time: {_watch.ElapsedMilliseconds}ms");
+            }
+            
 
         }
 
@@ -43,15 +73,16 @@ namespace QTAv2
 
             // Targets where to log to: File and Console
             var logfile = new NLog.Targets.FileTarget("logfile");
-            if (opts.LogFile != "")
+            if (opts.LogFile != null)
             {
                 if (Path.GetFileName(opts.LogFile) == opts.LogFile)                
-                    logfile.FileName = $"logs/{opts.LogFile}";
+                    logfile.FileName = $"{Path.Combine(Path.Combine(RootPath,"Logs"),opts.LogFile)}";
                 else 
                     logfile.FileName = $"{opts.LogFile}";
             }
-            else              
-                logfile.FileName = $"logs/{DateTime.Now.ToString("yyyyMMdd")}.log";
+            else
+                logfile.FileName = $"{Path.Combine(Path.Combine(RootPath, "Logs"), $"{DateTime.Now.ToString("yyyyMMdd")}.log")}";            
+
             logfile.MaxArchiveFiles = 60;
             logfile.ArchiveAboveSize = 10240000;
 
@@ -63,6 +94,7 @@ namespace QTAv2
 
             config.AddRule(LogLevel.Trace, LogLevel.Fatal, logfile);
             
+            // design layout for file log rotation
             CsvLayout layout = new CsvLayout();
             layout.Delimiter = CsvColumnDelimiterMode.Comma;
             layout.Quoting = CsvQuotingMode.Auto;
@@ -75,22 +107,45 @@ namespace QTAv2
             layout.Columns.Add(new CsvColumn("Exception", "${exception:format=toString}"));
             logfile.Layout = layout;
 
-            CsvLayout ConsoleLayout = new CsvLayout();
-            ConsoleLayout.Delimiter = CsvColumnDelimiterMode.Tab;
-            ConsoleLayout.Columns.Add(new CsvColumn("Start Time", "${longdate}"));
-            ConsoleLayout.Columns.Add(new CsvColumn("Message", "${message}"));
-            ConsoleLayout.Columns.Add(new CsvColumn("Exception", "${exception:format=toString}"));
+            // design layout for console log rotation
+            SimpleLayout ConsoleLayout = new SimpleLayout("${longdate}:${message}\n${exception}");
             logconsole.Layout = ConsoleLayout;
 
             // Apply config           
             NLog.LogManager.Configuration = config;
         }
 
+        static void PathConfigure(Options opts)
+        {
+            // DBList
+            if (opts.DBList != null && Path.GetFileName(opts.DBList) == opts.DBList)
+            {
+                opts.DBList = $"{Path.Combine(ConfigPath,opts.DBList)}";
+            }
+            // Logs
+            if (opts.LogFile != null && Path.GetFileName(opts.LogFile) == opts.LogFile)
+            {
+                opts.LogFile = $"{Path.Combine(LogPath, opts.LogFile)}";
+            }
+            // Query
+            if (opts.QueryFile != null && Path.GetFileName(opts.QueryFile) == opts.QueryFile)
+            {
+                opts.QueryFile = $"{Path.Combine(QueryPath, opts.QueryFile)}";
+            }
+            // Query
+            if (opts.CsvFile != null && Path.GetFileName(opts.CsvFile) == opts.CsvFile)
+            {
+                opts.CsvFile = $"{Path.Combine(CsvPath, opts.CsvFile)}";
+            }
+
+        }
+
         static int RunExportToCSV(Options opts)
         {
             var exitCode = 0;
-            
-            LoggerConfigure(opts);
+
+            PathConfigure(opts);
+            LoggerConfigure(opts);            
 
             _watch = new Stopwatch();
             _watch.Start();
@@ -100,6 +155,8 @@ namespace QTAv2
             logger.Info($"Query File : {opts.QueryFile}");
             logger.Info($"Log File : {opts.LogFile}");
             logger.Info($"CSV File : {opts.CsvFile}");
+            
+            Directory.CreateDirectory("Temp");
 
             if (!File.Exists(opts.QueryFile)) logger.Debug($"Query file not found : {opts.QueryFile}");
             if (!File.Exists(opts.DBList)) logger.Debug($"DBList not found : {opts.DBList}");
@@ -115,6 +172,29 @@ namespace QTAv2
                 
                 IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
                 List<string> TmpFiles = new List<string>();
+                var HeaderFile = $"Temp\\{Path.GetFileName(opts.CsvFile)}_Header";              
+                foreach (string connstr in ConnectionSrings) 
+                {                   
+                    using (SqlManager sqlman = new SqlManager(connstr, logger))
+                    {
+                        try
+                        {
+                            
+                            sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile);                            
+                        }
+                        catch (Exception ex)
+                        {
+                            exitCode = -1;
+                            logger.Error($"Export Failed : {connstr}", ex);
+                        }
+
+                    }
+                    break;
+
+                };
+
+                TmpFiles.Add(HeaderFile);
+
                 Parallel.ForEach(ConnectionSrings, (connstr) =>
                {
                    //logger.Debug($"Export Start... : {connstr}");
@@ -135,7 +215,7 @@ namespace QTAv2
 
                    }
 
-               });
+               });                
                 CombineFiles(TmpFiles, opts.CsvFile);
                 DeleteFiles(TmpFiles);
             }
@@ -145,7 +225,56 @@ namespace QTAv2
         static int RunExportToTable(Options opts)
         {
             var exitCode = 0;
+
+            PathConfigure(opts);
             LoggerConfigure(opts);
+
+            _watch = new Stopwatch();
+            _watch.Start();
+            logger.Debug("Application Start");
+
+            logger.Info("Mode : Export to Table, ");
+            logger.Info($"Query File : {opts.QueryFile}");
+            logger.Info($"Log File : {opts.LogFile}");
+            logger.Info($"Server : {opts.ServerName}");
+            logger.Info($"Database : {opts.DBName}");
+            logger.Info($"Table : {opts.TableName}");
+
+            if (!File.Exists(opts.QueryFile)) logger.Debug($"Query file not found : {opts.QueryFile}");
+            if (!File.Exists(opts.DBList)) logger.Debug($"DBList not found : {opts.DBList}");
+
+            if (File.Exists(opts.QueryFile) &&
+                File.Exists(opts.DBList)
+                )
+            {
+                string QueryStr = "";
+
+                using (var sr = new StreamReader(opts.QueryFile, true))
+                    QueryStr = sr.ReadToEnd();
+
+                IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
+                List<string> TmpFiles = new List<string>();
+                Parallel.ForEach(ConnectionSrings, (connstr) =>
+                {                    
+                    using (SqlManager sqlman = new SqlManager(connstr, logger))
+                    {
+                        try
+                        {
+                            var DestConnStr = $"Data Source={opts.ServerName};Initial Catalog={opts.DBName};Integrated Security=True;Connection Timeout=3600;";
+
+                            sqlman.SqlToTable(QueryStr, DestConnStr, opts.TableName);
+                            logger.Debug($"Export Success : {connstr}");
+                        }
+                        catch (Exception ex)
+                        {
+                            exitCode = -1;
+                            logger.Error($"Export Failed : {connstr}", ex);
+                        }
+
+                    }
+
+                });        
+            }
 
             return exitCode;
         }
@@ -158,9 +287,14 @@ namespace QTAv2
 
         static void HandleParseError(IEnumerable<Error> errs)
         {
+            ParserError = true;
 
-            if (errs.Any(x => x is HelpRequestedError || x is VersionRequestedError))
-                Console.WriteLine(errs);
+            if (errs.Any(x => x is HelpRequestedError || x is VersionRequestedError)) {                
+            }
+            else
+                Console.WriteLine("Parameter unknown, please check the documentation or use parameter '--help' for more information");
+
+
         }
 
         static void CombineFiles(IEnumerable<string> SourceFiles, string OutputFile)

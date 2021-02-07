@@ -35,7 +35,9 @@ namespace QTAv2
         [Option(Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
-        [Option( HelpText = "Optional. Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
+        [Option(
+            Default = "DBList.txt",
+            HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
 
     }
@@ -64,7 +66,7 @@ namespace QTAv2
 
     }
 
-    [Verb("DML", HelpText = "Query to All DB and Save result to CSV file")]
+    [Verb("DML", HelpText = "Run Query as Data Manipulation Language (INSERT UPDATE DELETE)")]
     class DML : Options
     {
         [Option(HelpText = "Print process output to console")]

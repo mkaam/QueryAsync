@@ -1,0 +1,6 @@
+﻿--logfile "C:\BitBucket\QTAv2\QTAv2\Logs\log-test.csv" --QueryFile "C:\BitBucket\QTAv2\QTAv2\InputQuery\Testing.sql" --csvfile "C:\BitBucket\QTAv2\QTAv2\OutputCSV\output-test.csv"
+ExportToCSV --logfile "log-test.csv" --QueryFile "Testing.sql" --csvfile "output-test.csv"
+
+ExportToTable --logfile "C:\BitBucket\Sales Volume\Sales Achievement\SalesVolumeEmail\Logs\SVAch_SalesVolumeRAW.txt" --QueryFile "C:\BitBucket\Sales Volume\Sales Achievement\SalesVolumeEmail\Query\Query Volume Sales.sql" --ServerName "PMIIDSUBDEV42\DEV2012" --DBName Users --TableName "SVAch_SalesVolumeRAW"
+
+ExportToTable --logfile "C:\BitBucket\Sales Volume\Sales Achievement\SalesVolumeEmail\Logs\SVAch_ReturnVolumeRAW.txt" --QueryFile "C:\BitBucket\Sales Volume\Sales Achievement\SalesVolumeEmail\Query\Query Volume Return.sql" --ServerName "PMIIDSUBDEV42\DEV2012" --DBName Users --TableName "SVAch_ReturnVolumeRAW"

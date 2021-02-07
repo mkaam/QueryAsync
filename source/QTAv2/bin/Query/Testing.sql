@@ -1,0 +1,1 @@
+select TOP 100 DB_NAME() db, * from Customer

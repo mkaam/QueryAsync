@@ -1,0 +1,1 @@
+C:\BitBucket\QTAv2\QTAv2\App\QTAv2.exe ExportToCSV --QueryFile CustBankAccount.sql --CsvFile CustBankAccount.csv
