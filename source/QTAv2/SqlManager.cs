@@ -19,6 +19,26 @@ namespace QTAv2
             ConnectionString = ConnectionStr;
             Log = log;
         }
+
+        public void TruncateTable(string TableName)
+        {
+            using (SqlConnection sqlconn = new SqlConnection(ConnectionString))
+            {
+                sqlconn.Open();
+                using (SqlCommand sqlcmd = new SqlCommand())
+                {
+                    sqlcmd.CommandTimeout = 3600;  //setting query timeout for 1 hour
+                    sqlcmd.Connection = sqlconn;
+                    sqlcmd.CommandText = $"truncate table {TableName}";
+
+                    sqlcmd.ExecuteNonQuery();            
+
+                }
+
+                sqlconn.Close();
+            }
+        }
+
         public void SqlToCsv(string QueryString, string CsvFileName)
         {            
             using (SqlConnection sqlconn = new SqlConnection(ConnectionString))

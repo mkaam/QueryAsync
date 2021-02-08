@@ -222,6 +222,24 @@ namespace QTAv2
 
             return exitCode;
         }
+
+        static void TruncateTable(Options opts)
+        {
+            var DestConnStr = $"Data Source={opts.ServerName};Initial Catalog={opts.DBName};Integrated Security=True;Connection Timeout=3600;";
+            using (SqlManager sqlman = new SqlManager(DestConnStr, logger))
+            {
+                try
+                {
+                    sqlman.TruncateTable(opts.TableName);
+                }
+                catch (SqlException ex)
+                {
+                    logger.Error($"Truncate Table {opts.TableName} Failed", ex);
+                }                
+            }
+                
+        }
+
         static int RunExportToTable(Options opts)
         {
             var exitCode = 0;
@@ -254,6 +272,9 @@ namespace QTAv2
 
                 IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
                 List<string> TmpFiles = new List<string>();
+
+                if (opts.TruncateTable) { TruncateTable(opts); }
+
                 Parallel.ForEach(ConnectionSrings, (connstr) =>
                 {                    
                     using (SqlManager sqlman = new SqlManager(connstr, logger))

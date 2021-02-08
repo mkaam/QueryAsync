@@ -12,6 +12,7 @@ namespace QTAv2
         public virtual string TableName { get; set; }
         public virtual string DBList { get; set; }
         public virtual string QueryFile { get; set; }
+        public virtual bool TruncateTable { get; set; }
     }
 
     [Verb("ExportToTable", HelpText = "Query to All DB and Save result to SQL Table")]
@@ -39,6 +40,11 @@ namespace QTAv2
             Default = "DBList.txt",
             HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
+
+        [Option(HelpText = "Truncate destination table before insert")]
+        public override bool TruncateTable { get; set; }
+
+
 
     }
 
