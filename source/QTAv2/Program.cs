@@ -156,7 +156,8 @@ namespace QTAv2
             logger.Info($"Log File : {opts.LogFile}");
             logger.Info($"CSV File : {opts.CsvFile}");
             
-            Directory.CreateDirectory("Temp");
+
+            if (!Directory.Exists(Path.Combine(ExePath, "Temp"))) Directory.CreateDirectory(Path.Combine(ExePath,"Temp"));
 
             if (!File.Exists(opts.QueryFile)) logger.Debug($"Query file not found : {opts.QueryFile}");
             if (!File.Exists(opts.DBList)) logger.Debug($"DBList not found : {opts.DBList}");
