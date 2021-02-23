@@ -173,7 +173,8 @@ namespace QTAv2
                 
                 IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
                 List<string> TmpFiles = new List<string>();
-                var HeaderFile = $"Temp\\{Path.GetFileName(opts.CsvFile)}_Header";              
+                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header");              
+
                 foreach (string connstr in ConnectionSrings) 
                 {                   
                     using (SqlManager sqlman = new SqlManager(connstr, logger))
@@ -199,7 +200,7 @@ namespace QTAv2
                 Parallel.ForEach(ConnectionSrings, (connstr) =>
                {
                    //logger.Debug($"Export Start... : {connstr}");
-                   var TmpFile = $"Temp\\{Path.GetFileName(opts.CsvFile)}-{Guid.NewGuid()}";
+                   var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}-{Guid.NewGuid()}");
                    TmpFiles.Add(TmpFile);
                    using (SqlManager sqlman = new SqlManager(connstr, logger))
                    {
