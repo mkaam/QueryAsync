@@ -19,3 +19,4 @@ C:\BitBucket\QTAv2\source\QTAv2\obj\Debug\QTAv2.csproj.CopyComplete
 C:\BitBucket\QTAv2\source\QTAv2\obj\Debug\QTAv2.exe
 C:\BitBucket\QTAv2\source\QTAv2\obj\Debug\QTAv2.pdb
 C:\BitBucket\QTAv2\source\QTAv2\bin\Debug\DBList.txt
+C:\BitBucket\QTAv2\source\QTAv2\obj\Debug\QTAv2.csprojAssemblyReference.cache

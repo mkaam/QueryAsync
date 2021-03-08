@@ -1,75 +1,92 @@
 ﻿using CommandLine;
+using System.Collections.Generic;
 
 namespace QTAv2
 {
     public class Options
     {
+        [Option(HelpText = "Print process output to console")]
         public virtual bool Verbose { get; set; }
+
         public virtual string CsvFile { get; set; }
+
+        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public virtual string LogFile { get; set; }
+
         public virtual string DBName { get; set; }
+        
         public virtual string ServerName { get; set; }
+
         public virtual string TableName { get; set; }
+
+        [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public virtual string DBList { get; set; }
+
+        public virtual IEnumerable<string> DBListFilters { get; set; }
+
+        [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public virtual string QueryFile { get; set; }
+
+        [Option('c', "TruncateTable", HelpText = "Truncate destination table before insert")]
         public virtual bool TruncateTable { get; set; }
+
+        public virtual string Delimiter { get; set; }
+
+        public virtual bool NoQuote { get; set; }
+
+        public virtual IEnumerable<string> CsvFileList { get; set; }
+
+
+
     }
 
     [Verb("ExportToTable", HelpText = "Query to All DB and Save result to SQL Table")]
     class ExportToTable : Options
     {
-        [Option(HelpText = "Print process output to console")]
         public override bool Verbose { get; set; }
 
-        [Option(HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
 
-        [Option(Required = true, HelpText = "Database Name for save result. eg: Users")]
+        [Option('b', "DBName", Required = true, HelpText = "Database Name for save result. eg: Users")]
         public override string DBName { get; set; }
 
-        [Option(Required = true, HelpText = "Server Name for save result. eg: PMIIDSUBISMS10")]
+        [Option('s', "ServerName", Required = true, HelpText = "Server Name for save result. eg: PMIIDSUBISMS10")]
         public override string ServerName { get; set; }
 
-        [Option(Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
+        [Option('t', "TableName", Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
         public override string TableName { get; set; }
 
-        [Option(Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
-        [Option(
-            Default = "DBList.txt",
-            HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
 
-        [Option(HelpText = "Truncate destination table before insert")]
         public override bool TruncateTable { get; set; }
-
-
 
     }
 
     [Verb("ExportToCSV", isDefault: true, HelpText = "Query to All DB and Save result to CSV file")]
     class ExportToCSV : Options
-    {
-        [Option(HelpText = "Print process output to console")]
+    {        
         public override bool Verbose { get; set; }
 
-        [Option(HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
-        public override string LogFile { get; set; }      
-
-        [Option(Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
+        public override string LogFile { get; set; }
+        
         public override string QueryFile { get; set; }
 
-        [Option(                        
-            Default = "DBList.txt",
-            HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
+
         public override string DBList { get; set; }
 
-        [Option(
-            Required = true,
-            HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
+        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
+        public override IEnumerable<string> DBListFilters { get; set; }
+
+        [Option('f', "CsvFile", Required = true, HelpText = "CSV File with full path. eg: E:\\QTAv2\\Output.csv")]
         public override string CsvFile { get; set; }
 
+        [Option('d', "Delimiter", Default = ",", HelpText = "Delimiter CSV file. eg: ; , |")]
+        public override string Delimiter { get; set; }
+
+        [Option('n', "NoQuote", Default = false, HelpText = "Disable quote on every column")]
+        public override bool NoQuote { get; set; }
     }
 
     [Verb("DML", HelpText = "Run Query as Data Manipulation Language (INSERT UPDATE DELETE)")]
@@ -78,17 +95,34 @@ namespace QTAv2
         [Option(HelpText = "Print process output to console")]
         public override bool Verbose { get; set; }
 
-        [Option(HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
 
-        [Option(Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
-        [Option(HelpText = "Optional. Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
 
     }
 
+    [Verb("ImportCSV", HelpText = "Import CSV file")]
+    class ImportCSV : Options
+    {
+        [Option(HelpText = "Print process output to console")]
+        public override bool Verbose { get; set; }
 
+        public override string LogFile { get; set; }
+
+        [Option(Required = true, HelpText = "Full Path CSV File. Multiple CSV File support with comma separator. eh: C:\\A.csv,C:\\B.csv")]
+        public override IEnumerable<string> CsvFileList { get; set; }
+
+        [Option('b', "DBName", Required = true, HelpText = "Database Name for save result. eg: Users")]
+        public override string DBName { get; set; }
+
+        [Option('s', "ServerName", Required = true, HelpText = "Server Name for save result. eg: PMIIDSUBISMS10")]
+        public override string ServerName { get; set; }
+
+        [Option('t', "TableName", Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
+        public override string TableName { get; set; }
+
+    }
 
 }
