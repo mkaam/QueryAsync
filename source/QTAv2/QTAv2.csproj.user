@@ -3,4 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
+  </PropertyGroup>
 </Project>

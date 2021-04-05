@@ -188,6 +188,20 @@ namespace QTAv2
                       delimiter: opts.Delimiter
                       );
                 }
+
+                if (opts.ForceQuote)
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter,
+                      shouldQuote: (field, context) => { return true; }                      
+                      );
+                }
+                else
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter
+                      );
+                }
   
 
                 string QueryStr ="";
@@ -204,7 +218,8 @@ namespace QTAv2
                     ConnectionSrings = tmp_ConnectionSrings.ToList();
 
                 List<string> TmpFiles = new List<string>();
-                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header");
+                string FileId = Guid.NewGuid().ToString();
+                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileId}");
                 int RowCount = 0;
                 foreach (string connstr in ConnectionSrings)
                 {
@@ -212,7 +227,7 @@ namespace QTAv2
                     {
                         try
                         {
-                            var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile);
+                            var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile, csvconf);
                             RowCount += RowCountx;
                         }
                         catch (Exception ex)
@@ -233,7 +248,7 @@ namespace QTAv2
                     Parallel.ForEach(ConnectionSrings, (connstr) =>
                    {
                        //logger.Debug($"Export Start... : {connstr}");
-                       var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}-{Guid.NewGuid()}");
+                       var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}_Detail-{FileId}");
                        TmpFiles.Add(TmpFile);
                        using (SqlManager sqlman = new SqlManager(connstr, logger))
                        {

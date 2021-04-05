@@ -83,7 +83,7 @@ namespace QTAv2
             }
         }
 
-        public int SqlToCsvHeaderOnly(string QueryString, string CsvFileName)
+        public int SqlToCsvHeaderOnly(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
         {
             int rowCount=0;
 
@@ -113,7 +113,7 @@ namespace QTAv2
 
                                 using (StreamWriter sw = new StreamWriter(CsvFileName, true))
                                 {
-                                    using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
+                                    using (var csv = new CsvWriter(sw, csvConfig))
                                     {
                                         if (!FileIsExist)
                                         {

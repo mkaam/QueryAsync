@@ -36,6 +36,9 @@ namespace QTAv2
 
         public virtual IEnumerable<string> CsvFileList { get; set; }
 
+        public virtual bool ForceQuote { get; set; }
+
+        public virtual bool NoHeader { get; set; }
 
 
     }
@@ -87,6 +90,12 @@ namespace QTAv2
 
         [Option('n', "NoQuote", Default = false, HelpText = "Disable quote on every column")]
         public override bool NoQuote { get; set; }
+
+        [Option('o', "ForceQuote", Default = false, HelpText = "Force use quote on every data")]
+        public override bool ForceQuote { get; set; }
+
+        [Option('p', "NoHeader", Default = false, HelpText = "No Header")]
+        public override bool NoHeader { get; set; }
     }
 
     [Verb("DML", HelpText = "Run Query as Data Manipulation Language (INSERT UPDATE DELETE)")]
