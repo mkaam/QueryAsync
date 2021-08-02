@@ -40,6 +40,8 @@ namespace QTAv2
 
         public virtual bool NoHeader { get; set; }
 
+        [Option('r', "QueryTextReplace", HelpText = "replace string on query, usually use for specific filter on query. eg: ParamAreaCode=JKT ParamSalesPoint=SSLI")]
+        public virtual IEnumerable<string> QueryTextReplace { get; set; }
 
     }
 
@@ -64,6 +66,8 @@ namespace QTAv2
         public override string DBList { get; set; }
 
         public override bool TruncateTable { get; set; }
+
+        public override IEnumerable<string> QueryTextReplace { get; set; }
 
     }
 
@@ -96,6 +100,8 @@ namespace QTAv2
 
         [Option('p', "NoHeader", Default = false, HelpText = "No Header")]
         public override bool NoHeader { get; set; }
+
+        public override IEnumerable<string> QueryTextReplace { get; set; }
     }
 
     [Verb("DML", HelpText = "Run Query as Data Manipulation Language (INSERT UPDATE DELETE)")]

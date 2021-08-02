@@ -4,6 +4,6 @@
     <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
+    <StartArguments>ExportToCSV -l E:\SSISFiles\AutoJourneyMapping\config\DBList.txt -g E:\SSISFiles\AutoJourneyMapping\Logs\QTAv2GenerateFailLogs.log -q E:\SSISFiles\AutoJourneyMapping\Query\GenerateFailLogs.sql -f \\PMIIDSUBDEV38\iSMSMirrorDirectory%24\ftp_JI2_prd%24\3.PRD\Import\PositionJourneyPlan\Failed\PositionJourneyPlan.csv -u JI2</StartArguments>
   </PropertyGroup>
 </Project>
