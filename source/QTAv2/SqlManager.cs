@@ -39,8 +39,10 @@ namespace QTAv2
             }
         }
 
-        public void SqlToCsv(string QueryString, string CsvFileName)
-        {            
+        public void SqlToCsv(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
+        {
+            
+
             using (SqlConnection sqlconn = new SqlConnection(ConnectionString))
             {                
                 sqlconn.Open();                
@@ -59,8 +61,8 @@ namespace QTAv2
 
                             using (StreamWriter sw = new StreamWriter(CsvFileName, true ))
                             {
-                                using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
-                                {
+                                using (var csv = new CsvHelper.CsvWriter(sw, csvConfig))
+                                {                                    
                                     // Write row values
                                     foreach (DataRow row in ds.Tables[0].Rows)
                                     {
@@ -81,8 +83,10 @@ namespace QTAv2
             }
         }
 
-        public void SqlToCsvHeaderOnly(string QueryString, string CsvFileName)
+        public int SqlToCsvHeaderOnly(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
         {
+            int rowCount=0;
+
             bool FileIsExist;
             if (File.Exists(CsvFileName))
                 FileIsExist = true;
@@ -103,22 +107,27 @@ namespace QTAv2
                         {
                             sqlda.SelectCommand = sqlcmd;
                             sqlda.Fill(ds);
-
-                            using (StreamWriter sw = new StreamWriter(CsvFileName, true))
+                            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                             {
-                                using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
+                                rowCount = ds.Tables[0].Rows.Count;
+
+                                using (StreamWriter sw = new StreamWriter(CsvFileName, true))
                                 {
-                                    if (!FileIsExist)
+                                    using (var csv = new CsvWriter(sw, csvConfig))
                                     {
-                                        foreach (DataColumn column in ds.Tables[0].Columns)
+                                        if (!FileIsExist)
                                         {
-                                            csv.WriteField(column.ColumnName);
+                                            foreach (DataColumn column in ds.Tables[0].Columns)
+                                            {
+                                                csv.WriteField(column.ColumnName);
+                                            }
+                                            csv.NextRecord();
                                         }
-                                        csv.NextRecord();
-                                    }                                    
-                                    
+
+                                    }
                                 }
                             }
+
                         }
                     }
 
@@ -126,6 +135,8 @@ namespace QTAv2
 
                 sqlconn.Close();
             }
+
+            return rowCount;
         }
 
         public void SqlToTable(string QueryString, string DestinationConnectionString, string TableName, int BatchSize = 1000, int Timeout=3600)

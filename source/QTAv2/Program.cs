@@ -13,6 +13,7 @@ using CsvHelper;
 using System.Globalization;
 using System.Diagnostics;
 using CommandLine.Text;
+using CsvHelper.Configuration;
 
 namespace QTAv2
 {
@@ -30,7 +31,9 @@ namespace QTAv2
         private static bool ParserError=false;
 
         static void Main(string[] args)
-        {
+        {   
+
+            //var proccount = Convert.ToInt32(Math.Ceiling((Environment.ProcessorCount * 0.75) * 2.0));
             ExePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             RootPath = Path.Combine(ExePath,"..");
             QueryPath = Path.Combine(RootPath, "Query");
@@ -62,7 +65,12 @@ namespace QTAv2
                 _watch.Stop();
                 logger.Debug($"Application Finished. Elapsed time: {_watch.ElapsedMilliseconds}ms");
             }
-            
+
+#if DEBUG
+            Console.WriteLine("Press enter to close...");
+            Console.ReadLine();
+#endif
+
 
         }
 
@@ -156,7 +164,8 @@ namespace QTAv2
             logger.Info($"Log File : {opts.LogFile}");
             logger.Info($"CSV File : {opts.CsvFile}");
             
-            Directory.CreateDirectory("Temp");
+
+            if (!Directory.Exists(Path.Combine(ExePath, "Temp"))) Directory.CreateDirectory(Path.Combine(ExePath,"Temp"));
 
             if (!File.Exists(opts.QueryFile)) logger.Debug($"Query file not found : {opts.QueryFile}");
             if (!File.Exists(opts.DBList)) logger.Debug($"DBList not found : {opts.DBList}");
@@ -165,22 +174,61 @@ namespace QTAv2
                 File.Exists(opts.DBList)
                 )
             {
+                CsvConfiguration csvconf;                
+                if (opts.NoQuote)
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter,
+                      shouldQuote: (field, context) => { return false; }
+                      );
+                }
+                else
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter
+                      );
+                }
+
+                if (opts.ForceQuote)
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter,
+                      shouldQuote: (field, context) => { return true; }                      
+                      );
+                }
+                else
+                {
+                    csvconf = new CsvConfiguration(CultureInfo.InvariantCulture,
+                      delimiter: opts.Delimiter
+                      );
+                }
+  
+
                 string QueryStr ="";
                 
                 using (var sr = new StreamReader(opts.QueryFile, true))                
                     QueryStr = sr.ReadToEnd();
                 
-                IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
+                IEnumerable<string> tmp_ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
+                List<string> ConnectionSrings = new List<string>();
+
+                if (opts.DBListFilters.Count() > 0)
+                    ConnectionSrings = EnumFiltered(tmp_ConnectionSrings, opts.DBListFilters);
+                else
+                    ConnectionSrings = tmp_ConnectionSrings.ToList();
+
                 List<string> TmpFiles = new List<string>();
-                var HeaderFile = $"Temp\\{Path.GetFileName(opts.CsvFile)}_Header";              
-                foreach (string connstr in ConnectionSrings) 
-                {                   
+                string FileId = Guid.NewGuid().ToString();
+                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileId}");
+                int RowCount = 0;
+                foreach (string connstr in ConnectionSrings)
+                {
                     using (SqlManager sqlman = new SqlManager(connstr, logger))
                     {
                         try
                         {
-                            
-                            sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile);                            
+                            var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile, csvconf);
+                            RowCount += RowCountx;
                         }
                         catch (Exception ex)
                         {
@@ -193,31 +241,35 @@ namespace QTAv2
 
                 };
 
-                TmpFiles.Add(HeaderFile);
+                if (RowCount > 0)
+                {
+                    TmpFiles.Add(HeaderFile);
 
-                Parallel.ForEach(ConnectionSrings, (connstr) =>
-               {
-                   //logger.Debug($"Export Start... : {connstr}");
-                   var TmpFile = $"Temp\\{Path.GetFileName(opts.CsvFile)}-{Guid.NewGuid()}";
-                   TmpFiles.Add(TmpFile);
-                   using (SqlManager sqlman = new SqlManager(connstr, logger))
+                    Parallel.ForEach(ConnectionSrings, (connstr) =>
                    {
-                       try
+                       //logger.Debug($"Export Start... : {connstr}");
+                       var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}_Detail-{FileId}");
+                       TmpFiles.Add(TmpFile);
+                       using (SqlManager sqlman = new SqlManager(connstr, logger))
                        {
-                           sqlman.SqlToCsv(QueryStr, TmpFile);
-                           logger.Debug($"Export Success : {connstr}");
-                       }
-                       catch (Exception ex)
-                       {
-                           exitCode = -1;
-                           logger.Error($"Export Failed : {connstr}", ex);
+                           try
+                           {
+                               sqlman.SqlToCsv(QueryStr, TmpFile, csvconf);
+                               logger.Debug($"Export Success : {connstr}");
+                           }
+                           catch (Exception ex)
+                           {
+                               exitCode = -1;
+                               logger.Error($"Export Failed : {connstr}", ex);
+                           }
+
                        }
 
-                   }
+                   });                
+                    CombineFiles(TmpFiles, opts.CsvFile);
+                    DeleteFiles(TmpFiles);
+                }
 
-               });                
-                CombineFiles(TmpFiles, opts.CsvFile);
-                DeleteFiles(TmpFiles);
             }
 
             return exitCode;
@@ -351,6 +403,26 @@ namespace QTAv2
                 }
             });
        
+        }
+
+        static List<string> EnumFiltered(IEnumerable<string> lines, IEnumerable<string> filters)
+        {
+        
+            return filters.AsParallel()
+                   .SelectMany(searchPattern =>
+                          lines.Where(x => x.Contains(searchPattern))
+                          ).ToList();
+
+        }
+
+        static bool test1()
+        {
+            return false;
+        }
+
+        static bool test2()
+        {
+            return true;
         }
 
     }

@@ -7,4 +7,7 @@ FROM            Customer INNER JOIN
                          ContactType ON Contact.Contact_ContactTypeId = ContactType.ContactTypeId
 						 inner join Users.dbo.CustBankAccount a on (Customer.CustomerCode = a.CustomerCode)
 where CustomerStatus = 'A'
+--and 
+--(a.BankName <> Customer.CustomerBankAccountName1 OR
+--a.BankAccountNumber <> Customer.CustomerBankAccountNumber1)
 ORDER BY CustomerCode ASC
