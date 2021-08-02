@@ -353,8 +353,15 @@ namespace QTAv2
                     }
                 }
 
-                IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
+                IEnumerable<string> tmp_ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
+                List<string> ConnectionSrings = new List<string>();
+
                 List<string> TmpFiles = new List<string>();
+
+                if (opts.DBListFilters.Count() > 0)
+                    ConnectionSrings = EnumFiltered(tmp_ConnectionSrings, opts.DBListFilters);
+                else
+                    ConnectionSrings = tmp_ConnectionSrings.ToList();
 
                 if (opts.TruncateTable) { TruncateTable(opts); }
 

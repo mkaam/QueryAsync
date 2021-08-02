@@ -22,6 +22,7 @@ namespace QTAv2
         [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public virtual string DBList { get; set; }
 
+        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
         public virtual IEnumerable<string> DBListFilters { get; set; }
 
         [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
@@ -67,6 +68,8 @@ namespace QTAv2
 
         public override bool TruncateTable { get; set; }
 
+        public override IEnumerable<string> DBListFilters { get; set; }
+
         public override IEnumerable<string> QueryTextReplace { get; set; }
 
     }
@@ -82,8 +85,7 @@ namespace QTAv2
 
 
         public override string DBList { get; set; }
-
-        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
+        
         public override IEnumerable<string> DBListFilters { get; set; }
 
         [Option('f', "CsvFile", Required = true, HelpText = "CSV File with full path. eg: E:\\QTAv2\\Output.csv")]
