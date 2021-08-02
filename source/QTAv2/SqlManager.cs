@@ -39,12 +39,11 @@ namespace QTAv2
             }
         }
 
-        public void SqlToCsv(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
+        public int SqlToCsv(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
         {
-            
-
+            int rowCount = 0;
             using (SqlConnection sqlconn = new SqlConnection(ConnectionString))
-            {                
+            {              
                 sqlconn.Open();                
                 using (SqlCommand sqlcmd = new SqlCommand())
                 {
@@ -58,6 +57,8 @@ namespace QTAv2
                         {                            
                             sqlda.SelectCommand = sqlcmd;
                             sqlda.Fill(ds);
+
+                            rowCount = ds.Tables[0].Rows.Count;
 
                             using (StreamWriter sw = new StreamWriter(CsvFileName, true ))
                             {
@@ -81,6 +82,8 @@ namespace QTAv2
 
                 sqlconn.Close();
             }
+
+            return rowCount;
         }
 
         public int SqlToCsvHeaderOnly(string QueryString, string CsvFileName, CsvConfiguration csvConfig)

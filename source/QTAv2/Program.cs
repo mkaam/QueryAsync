@@ -208,7 +208,19 @@ namespace QTAv2
                 
                 using (var sr = new StreamReader(opts.QueryFile, true))                
                     QueryStr = sr.ReadToEnd();
-                
+
+                foreach (string qtr in opts.QueryTextReplace)
+                {
+                    //skip if wrong format 
+                    if (qtr.Contains("="))
+                    {
+                        string lefttext = qtr.Split('=')[0].ToString();
+                        string righttext = qtr.Split('=')[1].ToString();
+                        if (lefttext.Length > 0 && righttext.Length > 0)
+                            QueryStr = QueryStr.Replace(lefttext, righttext);
+                    }                     
+                }
+
                 IEnumerable<string> tmp_ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
                 List<string> ConnectionSrings = new List<string>();
 
@@ -218,8 +230,8 @@ namespace QTAv2
                     ConnectionSrings = tmp_ConnectionSrings.ToList();
 
                 List<string> TmpFiles = new List<string>();
-                string FileId = Guid.NewGuid().ToString();
-                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileId}");
+                string FileIdHeader = Guid.NewGuid().ToString();
+                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileIdHeader}");
                 int RowCount = 0;
                 foreach (string connstr in ConnectionSrings)
                 {
@@ -229,6 +241,7 @@ namespace QTAv2
                         {
                             var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile, csvconf);
                             RowCount += RowCountx;
+                            if (RowCount >= 1) break;
                         }
                         catch (Exception ex)
                         {
@@ -236,8 +249,7 @@ namespace QTAv2
                             logger.Error($"Export Failed : {connstr}", ex);
                         }
 
-                    }
-                    break;
+                    }                    
 
                 };
 
@@ -247,15 +259,22 @@ namespace QTAv2
 
                     Parallel.ForEach(ConnectionSrings, (connstr) =>
                    {
+                       string FileIdDetail = Guid.NewGuid().ToString();
                        //logger.Debug($"Export Start... : {connstr}");
-                       var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}_Detail-{FileId}");
-                       TmpFiles.Add(TmpFile);
+                       var TmpFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}_Detail-{FileIdDetail}");
+                       
                        using (SqlManager sqlman = new SqlManager(connstr, logger))
                        {
                            try
                            {
-                               sqlman.SqlToCsv(QueryStr, TmpFile, csvconf);
-                               logger.Debug($"Export Success : {connstr}");
+                               int rowCount = sqlman.SqlToCsv(QueryStr, TmpFile, csvconf);
+                               if (rowCount>0)
+                               {
+                                   TmpFiles.Add(TmpFile);
+                                   logger.Debug($"Export {rowCount} rows successed using connection string : {connstr}");
+                               }
+                               else { logger.Debug($"Export Failed with {rowCount} rows using connection string : {connstr}"); }
+
                            }
                            catch (Exception ex)
                            {
@@ -265,8 +284,8 @@ namespace QTAv2
 
                        }
 
-                   });                
-                    CombineFiles(TmpFiles, opts.CsvFile);
+                   });
+                    if (TmpFiles.Count() > 1) CombineFiles(TmpFiles, opts.CsvFile);
                     DeleteFiles(TmpFiles);
                 }
 
@@ -321,6 +340,18 @@ namespace QTAv2
 
                 using (var sr = new StreamReader(opts.QueryFile, true))
                     QueryStr = sr.ReadToEnd();
+
+                foreach (string qtr in opts.QueryTextReplace)
+                {
+                    //skip if wrong format 
+                    if (qtr.Contains("="))
+                    {
+                        string lefttext = qtr.Split('=')[0].ToString();
+                        string righttext = qtr.Split('=')[1].ToString();
+                        if (lefttext.Length > 0 && righttext.Length > 0)
+                            QueryStr = QueryStr.Replace(lefttext, righttext);
+                    }
+                }
 
                 IEnumerable<string> ConnectionSrings = File.ReadLines(opts.DBList, Encoding.Default);
                 List<string> TmpFiles = new List<string>();

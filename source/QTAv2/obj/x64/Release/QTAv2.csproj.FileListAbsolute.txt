@@ -16,7 +16,7 @@ C:\BitBucket\QTAv2\source\QTAv2\bin\x64\Release\System.Buffers.xml
 C:\BitBucket\QTAv2\source\QTAv2\bin\x64\Release\System.Memory.xml
 C:\BitBucket\QTAv2\source\QTAv2\bin\x64\Release\System.Runtime.CompilerServices.Unsafe.xml
 C:\BitBucket\QTAv2\source\QTAv2\bin\x64\Release\System.ValueTuple.xml
-C:\BitBucket\QTAv2\source\QTAv2\obj\x64\Release\QTAv2.csprojAssemblyReference.cache
 C:\BitBucket\QTAv2\source\QTAv2\obj\x64\Release\QTAv2.csproj.CopyComplete
 C:\BitBucket\QTAv2\source\QTAv2\obj\x64\Release\QTAv2.exe
 C:\BitBucket\QTAv2\source\QTAv2\obj\x64\Release\QTAv2.pdb
+C:\BitBucket\QTAv2\source\QTAv2\obj\x64\Release\QTAv2.csprojAssemblyReference.cache
