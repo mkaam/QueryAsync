@@ -285,7 +285,13 @@ namespace QTAv2
                        }
 
                    });
-                    if (TmpFiles.Count() > 1) CombineFiles(TmpFiles, opts.CsvFile);
+                    if (TmpFiles.Count() > 1)
+                    {
+                        // 20210816 added by Aam automate create folder recursively if not exist
+                        string dirname = Path.GetDirectoryName(opts.CsvFile);
+                        if (!Directory.Exists(dirname)) Directory.CreateDirectory(dirname);
+                        CombineFiles(TmpFiles, opts.CsvFile);
+                    }
                     DeleteFiles(TmpFiles);
                 }
 
