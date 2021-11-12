@@ -231,31 +231,40 @@ namespace QTAv2
 
                 List<string> TmpFiles = new List<string>();
                 string FileIdHeader = Guid.NewGuid().ToString();
-                var HeaderFile = Path.Combine(ExePath,$"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileIdHeader}");
                 int RowCount = 0;
-                foreach (string connstr in ConnectionSrings)
+                string HeaderFile = "";
+                if (!opts.HeaderInBody)
                 {
-                    using (SqlManager sqlman = new SqlManager(connstr, logger))
+                    HeaderFile = Path.Combine(ExePath, $"Temp\\{Path.GetFileName(opts.CsvFile)}_Header-{FileIdHeader}");
+                    foreach (string connstr in ConnectionSrings)
                     {
-                        try
+                        using (SqlManager sqlman = new SqlManager(connstr, logger))
                         {
-                            var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile, csvconf);
-                            RowCount += RowCountx;
-                            if (RowCount >= 1) break;
-                        }
-                        catch (Exception ex)
-                        {
-                            exitCode = -1;
-                            logger.Error($"Export Failed : {connstr}", ex);
+                            try
+                            {
+                                var RowCountx = sqlman.SqlToCsvHeaderOnly(QueryStr, HeaderFile, csvconf);
+                                RowCount += RowCountx;
+                                if (RowCount >= 1) break;
+                            }
+                            catch (Exception ex)
+                            {
+                                exitCode = -1;
+                                logger.Error($"Export Failed : {connstr}", ex);
+                            }
+
                         }
 
-                    }                    
-
-                };
+                    }
+                }
+                
+                if (opts.HeaderInBody)
+                {
+                    RowCount = 1;
+                }
 
                 if (RowCount > 0)
                 {
-                    TmpFiles.Add(HeaderFile);
+                    if (!opts.HeaderInBody) TmpFiles.Add(HeaderFile);
 
                     Parallel.ForEach(ConnectionSrings, (connstr) =>
                    {
@@ -267,7 +276,12 @@ namespace QTAv2
                        {
                            try
                            {
-                               int rowCount = sqlman.SqlToCsv(QueryStr, TmpFile, csvconf);
+                               int rowCount = 0;
+                               if (opts.HeaderInBody)
+                                   rowCount = sqlman.SqlToCsvHeaderAndBody(QueryStr, TmpFile, csvconf);                                                            
+                               else
+                                   rowCount = sqlman.SqlToCsv(QueryStr, TmpFile, csvconf);
+
                                if (rowCount>0)
                                {
                                    TmpFiles.Add(TmpFile);
@@ -285,7 +299,7 @@ namespace QTAv2
                        }
 
                    });
-                    if (TmpFiles.Count() > 1)
+                    if ( (TmpFiles.Count() > 1 && !opts.HeaderInBody) || (opts.HeaderInBody && TmpFiles.Count() == 1))
                     {
                         // 20210816 added by Aam automate create folder recursively if not exist
                         string dirname = Path.GetDirectoryName(opts.CsvFile);

@@ -43,6 +43,8 @@ namespace QTAv2
 
         [Option('r', "QueryTextReplace", HelpText = "replace string on query, usually use for specific filter on query. eg: ParamAreaCode=JKT ParamSalesPoint=SSLI")]
         public virtual IEnumerable<string> QueryTextReplace { get; set; }
+       
+        public virtual bool HeaderInBody { get; set; }
 
     }
 
@@ -104,6 +106,9 @@ namespace QTAv2
         public override bool NoHeader { get; set; }
 
         public override IEnumerable<string> QueryTextReplace { get; set; }
+
+        [Option('z', "HeaderInBody", Default = false, HelpText = "HeaderInBody")]
+        public override bool HeaderInBody { get; set; }
     }
 
     [Verb("DML", HelpText = "Run Query as Data Manipulation Language (INSERT UPDATE DELETE)")]

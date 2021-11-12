@@ -39,6 +39,64 @@ namespace QTAv2
             }
         }
 
+        public int SqlToCsvHeaderAndBody(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
+        {
+            int rowCount = 0;
+            using (SqlConnection sqlconn = new SqlConnection(ConnectionString))
+            {
+                sqlconn.Open();
+                using (SqlCommand sqlcmd = new SqlCommand())
+                {
+                    sqlcmd.CommandTimeout = 3600; //setting query timeout for 1 hour
+                    sqlcmd.Connection = sqlconn;
+                    sqlcmd.CommandText = QueryString;
+
+                    using (SqlDataAdapter sqlda = new SqlDataAdapter())
+                    {
+                        using (DataSet ds = new DataSet())
+                        {
+                            sqlda.SelectCommand = sqlcmd;
+                            sqlda.Fill(ds);
+
+                            rowCount = ds.Tables[0].Rows.Count;
+
+                            if (rowCount > 0)
+                            {
+                                using (StreamWriter sw = new StreamWriter(CsvFileName, true))
+                                {
+                                    using (var csv = new CsvHelper.CsvWriter(sw, csvConfig))
+                                    {
+                                        // Write Header
+                                        foreach (DataColumn column in ds.Tables[0].Columns)
+                                        {
+                                            csv.WriteField(column.ColumnName);
+                                        }
+                                        csv.NextRecord();
+
+                                        // Write row values
+                                        foreach (DataRow row in ds.Tables[0].Rows)
+                                        {
+                                            for (var i = 0; i < ds.Tables[0].Columns.Count; i++)
+                                            {
+                                                csv.WriteField(row[i]);
+                                            }
+                                            csv.NextRecord();
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+
+                }
+
+                sqlconn.Close();
+            }
+
+            return rowCount;
+        }
+
         public int SqlToCsv(string QueryString, string CsvFileName, CsvConfiguration csvConfig)
         {
             int rowCount = 0;
@@ -150,7 +208,7 @@ namespace QTAv2
                 sqlconn.Open();
                 using (SqlCommand sqlcmd = new SqlCommand())
                 {
-                    sqlcmd.CommandTimeout = 3600;  //setting query timeout for 1 hour
+                    sqlcmd.CommandTimeout = Timeout;  //setting query timeout for 1 hour
                     sqlcmd.Connection = sqlconn;
                     sqlcmd.CommandText = QueryString;
 

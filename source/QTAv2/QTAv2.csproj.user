@@ -4,6 +4,6 @@
     <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <StartArguments>ExportToCSV -g E:\SSISFiles\DeliverySubmissionRODD\Logs\QTASubmissionOrderCSV.csv -l E:\SSISFiles\DeliverySubmissionRODD\Config\DBList_DEV_Users.txt -q E:\SSISFiles\DeliverySubmissionRODD\Query\DeliverySubmissionOrderCSV.sql -f E:\SSISFiles\DeliverySubmissionRODD\Outbound\ABOG001-Shipper\BOG\2021-AUGUST\20210816\BOG_DeliverySubmission_20210816_142404.csv -r "paramSalesPointCode=BOG"</StartArguments>
+    <StartArguments>ExportToCSV --logfile E:\ssisfiles\WMS\Logs\WMSDN.csv --csvfile E:\ssisfiles\WMS\CSV\WMS.csv --queryfile E:\SSISFiles\WMS\Query\QueryCSV.sql --dblist E:\SSISFiles\WMS\Config\DBList_INTID.txt --Delimiter , --NoQuote --HeaderInBody</StartArguments>
   </PropertyGroup>
 </Project>
