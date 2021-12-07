@@ -439,7 +439,8 @@ namespace QTAv2
                 {
                     try
                     {
-                        sqlman.CsvToTable(csvfile, opts.TableName);
+                        if (opts.AddColumnFileName) 
+                            sqlman.CsvToTable(csvfile, opts.TableName, opts.AddColumnFileName, opts.AddColumnModDate);                        
                         logger.Debug($"Import CSV Success : {csvfile}");
                     }
                     catch (Exception ex)

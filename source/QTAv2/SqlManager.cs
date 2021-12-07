@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
+using System.Collections.Generic;
 
 namespace QTAv2
 {
@@ -229,7 +230,8 @@ namespace QTAv2
                 sqlconn.Close();
             }
         }
-        public void CsvToTable(string csvFile, string TableName)
+       
+        public void CsvToTable(string csvFile, string TableName, bool AddFileNameColumn = false, bool AddModDateColumn = false)
         {
             using (var reader = new StreamReader(csvFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -240,6 +242,27 @@ namespace QTAv2
                     var dt = new DataTable();
                     dt.Load(dr);
 
+                    if (AddFileNameColumn)
+                    {
+                        dt.Columns.Add("FileName", typeof(String));
+
+                        foreach (DataRow rowall in dt.Rows) // search whole table
+                        {
+                            rowall["FileName"] = csvFile;
+                        }
+                    }
+
+                    if (AddModDateColumn)
+                    {
+                        dt.Columns.Add("ModDate", typeof(DateTime));
+
+                        foreach (DataRow rowall in dt.Rows) // search whole table
+                        {
+                            rowall["ModDate"] = DateTime.Now;
+                        }
+                    }
+
+
                     using (var bulkCopy = new SqlBulkCopy(ConnectionString))
                     {
                         // DataTable column names match my SQL Column names, so I simply made this loop. 
@@ -247,9 +270,12 @@ namespace QTAv2
                         {
                             bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
                         }
+                       
                         bulkCopy.DestinationTableName = TableName;
                         bulkCopy.WriteToServer(dt);
                     }
+
+
                 }
             }
         }

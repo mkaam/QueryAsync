@@ -40,6 +40,10 @@ namespace QTAv2
        
         public virtual bool HeaderInBody { get; set; }
 
+        public virtual bool AddColumnFileName { get; set; }
+
+        public virtual bool AddColumnModDate { get; set; }
+
     }
 
     [Verb("ExportToTable", HelpText = "Query to All DB and Save result to SQL Table")]
@@ -148,6 +152,12 @@ namespace QTAv2
 
         [Option('t', "TableName", Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
         public override string TableName { get; set; }
+
+        [Option("AddColumnFileName", HelpText = "Add column contain filename information")]
+        public override bool AddColumnFileName { get; set; }
+
+        [Option("AddColumnModDate", HelpText = "Add column contain filename information")]
+        public override bool AddColumnModDate { get; set; }
 
     }
 
