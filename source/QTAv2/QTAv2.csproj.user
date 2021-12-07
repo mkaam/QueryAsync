@@ -4,6 +4,6 @@
     <StartArguments>ExportToCSV --logfile E:\ssisfiles\ReportDeliverySubmission\Logs\QTAv2Log.csv --csvfile E:\ssisfiles\ReportDeliverySubmission\CSV\DeliverySubmission.csv --queryfile E:\SSISFiles\ReportDeliverySubmission\Query\DeliverySubmission.sql --DBListFilters JKT</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <StartArguments>ExportToCSV --logfile E:\ssisfiles\WMS\Logs\WMSDN.csv --csvfile E:\ssisfiles\WMS\CSV\WMS.csv --queryfile E:\SSISFiles\WMS\Query\QueryCSV.sql --dblist E:\SSISFiles\WMS\Config\DBList_INTID.txt --Delimiter , --NoQuote --HeaderInBody</StartArguments>
+    <StartArguments>ImportCSV --LogFile C:\BitBucket\CustomerAddressMassUpload\Logs\QTAv2Import.log --CsvFileList C:\BitBucket\CustomerAddressMassUpload\Inprogress\CustomerAddressMassUpload_CBN.csv --DBName Users --ServerName PMIIDSUBDEV42\DEV2012 --TableName temp_CustomerAddress</StartArguments>
   </PropertyGroup>
 </Project>

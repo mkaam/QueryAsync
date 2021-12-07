@@ -10,7 +10,6 @@ namespace QTAv2
 
         public virtual string CsvFile { get; set; }
 
-        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public virtual string LogFile { get; set; }
 
         public virtual string DBName { get; set; }
@@ -19,16 +18,12 @@ namespace QTAv2
 
         public virtual string TableName { get; set; }
 
-        [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public virtual string DBList { get; set; }
 
-        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
         public virtual IEnumerable<string> DBListFilters { get; set; }
 
-        [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public virtual string QueryFile { get; set; }
 
-        [Option('c', "TruncateTable", HelpText = "Truncate destination table before insert")]
         public virtual bool TruncateTable { get; set; }
 
         public virtual string Delimiter { get; set; }
@@ -41,7 +36,6 @@ namespace QTAv2
 
         public virtual bool NoHeader { get; set; }
 
-        [Option('r', "QueryTextReplace", HelpText = "replace string on query, usually use for specific filter on query. eg: ParamAreaCode=JKT ParamSalesPoint=SSLI")]
         public virtual IEnumerable<string> QueryTextReplace { get; set; }
        
         public virtual bool HeaderInBody { get; set; }
@@ -53,6 +47,7 @@ namespace QTAv2
     {
         public override bool Verbose { get; set; }
 
+        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
 
         [Option('b', "DBName", Required = true, HelpText = "Database Name for save result. eg: Users")]
@@ -64,14 +59,19 @@ namespace QTAv2
         [Option('t', "TableName", Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
         public override string TableName { get; set; }
 
+        [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
+        [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
 
+        [Option('c', "TruncateTable", HelpText = "Truncate destination table before insert")]
         public override bool TruncateTable { get; set; }
 
+        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
         public override IEnumerable<string> DBListFilters { get; set; }
 
+        [Option('r', "QueryTextReplace", HelpText = "replace string on query, usually use for specific filter on query. eg: ParamAreaCode=JKT ParamSalesPoint=SSLI")]
         public override IEnumerable<string> QueryTextReplace { get; set; }
 
     }
@@ -81,13 +81,15 @@ namespace QTAv2
     {        
         public override bool Verbose { get; set; }
 
+        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
         
         public override string QueryFile { get; set; }
 
-
+        [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
-        
+
+        [Option('u', "DBListFilters", HelpText = "filter connection string from DB List to be executed. Eg: AMI JKT")]
         public override IEnumerable<string> DBListFilters { get; set; }
 
         [Option('f', "CsvFile", Required = true, HelpText = "CSV File with full path. eg: E:\\QTAv2\\Output.csv")]
@@ -117,6 +119,7 @@ namespace QTAv2
         [Option(HelpText = "Print process output to console")]
         public override bool Verbose { get; set; }
 
+        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
 
         public override string QueryFile { get; set; }
@@ -131,6 +134,7 @@ namespace QTAv2
         [Option(HelpText = "Print process output to console")]
         public override bool Verbose { get; set; }
 
+        [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
 
         [Option(Required = true, HelpText = "Full Path CSV File. Multiple CSV File support with comma separator. eh: C:\\A.csv,C:\\B.csv")]

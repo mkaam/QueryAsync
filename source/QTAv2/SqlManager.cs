@@ -229,9 +229,29 @@ namespace QTAv2
                 sqlconn.Close();
             }
         }
-        public void CsvToTable(string ServerName, string DbName, string TableName)
+        public void CsvToTable(string csvFile, string TableName)
         {
+            using (var reader = new StreamReader(csvFile))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                // Do any configuration to `CsvReader` before creating CsvDataReader.
+                using (var dr = new CsvDataReader(csv))
+                {                    
+                    var dt = new DataTable();
+                    dt.Load(dr);
 
+                    using (var bulkCopy = new SqlBulkCopy(ConnectionString))
+                    {
+                        // DataTable column names match my SQL Column names, so I simply made this loop. 
+                        foreach (DataColumn col in dt.Columns)
+                        {
+                            bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+                        }
+                        bulkCopy.DestinationTableName = TableName;
+                        bulkCopy.WriteToServer(dt);
+                    }
+                }
+            }
         }
 
         public string ConnectionString { get; set; }

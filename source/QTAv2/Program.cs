@@ -55,9 +55,10 @@ namespace QTAv2
                 });
 
 
-            var result = parser.ParseArguments<ExportToCSV, ExportToTable>(args)
+            var result = parser.ParseArguments<ExportToCSV, ExportToTable, ImportCSV>(args)
                 .WithParsed<ExportToCSV>(s => RunExportToCSV(s))
                 .WithParsed<ExportToTable>(s => RunExportToTable(s))
+                .WithParsed<ImportCSV>(s => RunImportFromCsv(s))
                 .WithNotParsed(errors => HandleParseError(errors));
 
             if (!ParserError)
@@ -412,8 +413,45 @@ namespace QTAv2
 
         static int RunImportFromCsv(Options opts)
         {
+            var exitCode = 0;
 
-            return 0;
+            PathConfigure(opts);
+            LoggerConfigure(opts);
+
+            _watch = new Stopwatch();
+            _watch.Start();
+            logger.Debug("Application Start");
+
+            logger.Info("Mode : Import CSV to SQL Table, ");            
+            logger.Info($"Log File : {opts.LogFile}");
+
+
+            Parallel.ForEach(opts.CsvFileList, (csvfile) =>
+            {
+                logger.Info($"CSV File : {opts.CsvFile}");
+                logger.Info($"Server : {opts.ServerName}");
+                logger.Info($"DB : {opts.DBName}");
+                logger.Info($"Table : {opts.TableName}");
+
+                var connstr = $"Data Source={opts.ServerName};Initial Catalog={opts.DBName};Integrated Security=True;Connection Timeout=3600;";
+
+                using (SqlManager sqlman = new SqlManager(connstr, logger))
+                {
+                    try
+                    {
+                        sqlman.CsvToTable(csvfile, opts.TableName);
+                        logger.Debug($"Import CSV Success : {csvfile}");
+                    }
+                    catch (Exception ex)
+                    {
+                        exitCode = -1;
+                        logger.Error($"Import CSV Failed : {csvfile}", ex);
+                    }
+                }
+
+            });       
+
+            return exitCode;
         }
 
         static void HandleParseError(IEnumerable<Error> errs)
