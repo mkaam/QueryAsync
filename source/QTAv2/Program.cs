@@ -168,6 +168,13 @@ namespace QTAv2
 
             if (!Directory.Exists(Path.Combine(ExePath, "Temp"))) Directory.CreateDirectory(Path.Combine(ExePath,"Temp"));
 
+            // delete temporary file older than 3 month
+            Directory.GetFiles(Path.Combine(ExePath, "Temp"))
+                 .Select(f => new FileInfo(f))
+                 .Where(f => f.LastAccessTime < DateTime.Now.AddMonths(-3))
+                 .ToList()
+                 .ForEach(f => f.Delete());
+
             if (!File.Exists(opts.QueryFile)) logger.Debug($"Query file not found : {opts.QueryFile}");
             if (!File.Exists(opts.DBList)) logger.Debug($"DBList not found : {opts.DBList}");
 

@@ -87,7 +87,8 @@ namespace QTAv2
 
         [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
-        
+
+        [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
         [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
@@ -111,6 +112,7 @@ namespace QTAv2
         [Option('p', "NoHeader", Default = false, HelpText = "No Header")]
         public override bool NoHeader { get; set; }
 
+        [Option('r', "QueryTextReplace", HelpText = "replace string on query, usually use for specific filter on query. eg: ParamAreaCode=JKT ParamSalesPoint=SSLI")]
         public override IEnumerable<string> QueryTextReplace { get; set; }
 
         [Option('z', "HeaderInBody", Default = false, HelpText = "HeaderInBody")]
@@ -125,9 +127,11 @@ namespace QTAv2
 
         [Option('g', "LogFile", HelpText = "Full path Logging file or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\Logs\\LogAMI.txt or LogAMI.txt")]
         public override string LogFile { get; set; }
-
+        
+        [Option('q', "QueryFile", Required = true, HelpText = "query filename, can use full path or use filename only, by default App rootpath will be used. eg: E:\\Interface\\Sampoerna\\QTAv2\\InputQuery\\CustomerReport.sql or CustomerReport.sql")]
         public override string QueryFile { get; set; }
 
+        [Option('l', "DBList", Default = "DBList.txt", HelpText = "Full path configuration file for Database Connection List. eg: E:\\QTAv2\\DBList.txt")]
         public override string DBList { get; set; }
 
     }
