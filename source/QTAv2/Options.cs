@@ -157,10 +157,10 @@ namespace QTAv2
         [Option('t', "TableName", Required = true, HelpText = "Table Name for save result. eg: ExportTable")]
         public override string TableName { get; set; }
 
-        [Option("AddColumnFileName", HelpText = "Add column contain filename information")]
+        [Option("AddColumnFileName", Default = false, HelpText = "Add column contain filename information")]
         public override bool AddColumnFileName { get; set; }
 
-        [Option("AddColumnModDate", HelpText = "Add column contain filename information")]
+        [Option("AddColumnModDate", Default = false, HelpText = "Add column contain filename information")]
         public override bool AddColumnModDate { get; set; }
 
     }

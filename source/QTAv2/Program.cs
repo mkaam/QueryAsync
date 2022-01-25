@@ -435,7 +435,7 @@ namespace QTAv2
 
             Parallel.ForEach(opts.CsvFileList, (csvfile) =>
             {
-                logger.Info($"CSV File : {opts.CsvFile}");
+                logger.Info($"CSV File : {csvfile}");
                 logger.Info($"Server : {opts.ServerName}");
                 logger.Info($"DB : {opts.DBName}");
                 logger.Info($"Table : {opts.TableName}");
@@ -445,9 +445,9 @@ namespace QTAv2
                 using (SqlManager sqlman = new SqlManager(connstr, logger))
                 {
                     try
-                    {
-                        if (opts.AddColumnFileName) 
-                            sqlman.CsvToTable(csvfile, opts.TableName, opts.AddColumnFileName, opts.AddColumnModDate);                        
+                    {                        
+                        sqlman.CsvToTable(csvfile, opts.TableName, opts.AddColumnFileName, opts.AddColumnModDate);                        
+
                         logger.Debug($"Import CSV Success : {csvfile}");
                     }
                     catch (Exception ex)
