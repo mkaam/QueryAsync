@@ -163,6 +163,9 @@ namespace QTAv2
         [Option("AddColumnModDate", Default = false, HelpText = "Add column contain filename information")]
         public override bool AddColumnModDate { get; set; }
 
+        [Option('c', "TruncateTable", HelpText = "Truncate destination table before insert")]
+        public override bool TruncateTable { get; set; }
+
     }
 
 }

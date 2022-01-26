@@ -432,6 +432,7 @@ namespace QTAv2
             logger.Info("Mode : Import CSV to SQL Table, ");            
             logger.Info($"Log File : {opts.LogFile}");
 
+            if (opts.TruncateTable) { TruncateTable(opts); }
 
             Parallel.ForEach(opts.CsvFileList, (csvfile) =>
             {
